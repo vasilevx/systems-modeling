@@ -73,7 +73,7 @@ function App() {
       data={{
         datasets: [
           {
-            label: "test",
+            label: "Уравнение 1",
             fill: false,
 
             data: [...new Array(100)].map((item, index) => {
