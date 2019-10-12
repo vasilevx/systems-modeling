@@ -2,87 +2,107 @@ import React from "react";
 import "./App.css";
 
 import { Line } from "react-chartjs-2";
-
-const variantVariables = {
-  p: 10 ** 5,
-  a: 0.5,
-  m: 2000,
-  u: 20,
-  cx: 0.03,
-  cy: 0.002,
-  m1: 0.05,
-  m2: 0.01,
-  T: 12,
-  x1_0: 1800,
-  x2_0: 0.8,
-  x3_0: 0,
-  x4_0: 0,
-  x5_0: 0.8,
-  g: 9.81,
-  h: 0.1
-};
-
-const x1 = [1800],
-  x2 = [0.8],
-  x3 = [0],
-  x4 = [0],
-  x5 = [0.8];
+import { tsExternalModuleReference } from "@babel/types";
 
 function App() {
-  const {
-    p,
-    a,
-    m,
-    u,
-    cx,
-    cy,
-    m1,
-    m2,
-    T,
-    x1_0,
-    x2_0,
-    x3_0,
-    x4_0,
-    x5_0,
-    g,
-    h
-  } = variantVariables;
+  const generateSteps = (start, end, step) => {
+    const arr = [];
+    for (let i = start; i < end; i += step) {
+      arr.push(i);
+    }
+    return arr;
+  };
 
-  const x1_F = t => -g * Math.sin(x2) + (p - a * cx * x1 ** 2) / (m - u * t);
-  const x2_F = t =>
-    (-g + (p * Math.sin(x5 - x2) + a * cy * x1 ** 2) / (m - u * t)) / x1;
+  const Eu = step => {
+    const c = 7000,
+      u = 20,
+      T = 10,
+      Hte = 10000,
+      g = 9.81,
+      X = [[0], [0], [1200]],
+      time = [0];
 
-  const x3_F = t =>
-    (m1 * a * (x2 - x5) * x1 ** 2 - m2 * a * x1 ** 2 * x3) / (m - u * t);
+    const steps = generateSteps(0, T + step, step).length;
 
-  const x4_F = t => x1 * Math.sin(x2);
+    const r = j => 0.1 * Math.exp(-X[0][j] / Hte);
 
-  const x5_F = t => x3;
+    for (let i = 1; i < steps; i++) {
+      X[0].push(0);
+      X[1].push(0);
+      X[2].push(0);
+
+      X[0][i] = X[0][i - 1] + step * X[1][i - 1];
+
+      X[1][i] =
+        X[1][i - 1] +
+        step *
+          ((c * u) / X[2][i - 1] -
+            g -
+            (r(i - 1) * Math.pow(X[1][i - 1], 2)) / X[2][i - 1]);
+
+      X[2][i] = X[2][i - 1] + step * -u;
+
+      time.push(i * step);
+    }
+
+    return [X, time, steps];
+  };
+
+  const delta = [100],
+    h = [0.1],
+    steps = [generateSteps(0, 13 + h[h.length - 1], h[h.length - 1]).length];
+
+  let Y1, Ox, count, Y2;
+  while (delta[delta.length - 1] > 0.001) {
+    [Y1, Ox, count] = Eu(h[h.length - 1]);
+    [Y2] = Eu(h[h.length - 1] / 2);
+
+    delta.push(
+      Math.abs(
+        (Y1[0][Y1[0].length - 1] - Y2[0][Y2[0].length - 1]) /
+          Y2[0][Y2[0].length - 1]
+      )
+    );
+    h.push(h[h.length - 1] / 2);
+    steps.push(count);
+  }
+
+  const data1 = Ox.map((key, index) => ({ x: key, y: Y1[0][index] }));
+  const data2 = Ox.map((key, index) => ({ x: key, y: Y1[1][index] }));
+  const data3 = Ox.map((key, index) => ({ x: key, y: Y1[2][index] }));
+  const data4 = h.map((key, index) => ({ x: key, y: delta[index] }));
+  const data5 = h.map((key, index) => ({ x: key, y: steps[index] }));
+
+  const data = [data1, data2, data3, data4, data5];
   return (
-    <Line
-      options={{
-        scales: {
-          xAxes: [
-            {
-              type: "linear",
-              position: "bottom"
+    <>
+      {data.map((item, key) => (
+        <Line
+          key={key}
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  type: "linear",
+                  position: "bottom"
+                }
+              ]
             }
-          ]
-        }
-      }}
-      data={{
-        datasets: [
-          {
-            label: "Уравнение 1",
-            fill: false,
+          }}
+          data={{
+            datasets: [
+              {
+                label: `Уравнение ${key + 1}`,
+                backgroundColor: "black",
+                fill: false,
 
-            data: [...new Array(100)].map((item, index) => {
-              return { y: x1_F(index), x: index };
-            })
-          }
-        ]
-      }}
-    />
+                data: item
+              }
+            ]
+          }}
+        />
+      ))}
+    </>
   );
 }
 
