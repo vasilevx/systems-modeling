@@ -2,7 +2,8 @@ import React from "react";
 import "./App.css";
 
 import { Line } from "react-chartjs-2";
-import { tsExternalModuleReference } from "@babel/types";
+
+/* Модель 1 вариант 3 */
 
 function App() {
   const generateSteps = (start, end, step) => {
@@ -13,7 +14,7 @@ function App() {
     return arr;
   };
 
-  const Eu = step => {
+  const Euler = step => {
     const c = 7000,
       u = 20,
       T = 10,
@@ -54,8 +55,8 @@ function App() {
 
   let Y1, Ox, count, Y2;
   while (delta[delta.length - 1] > 0.001) {
-    [Y1, Ox, count] = Eu(h[h.length - 1]);
-    [Y2] = Eu(h[h.length - 1] / 2);
+    [Y1, Ox, count] = Euler(h[h.length - 1]);
+    [Y2] = Euler(h[h.length - 1] / 2);
 
     delta.push(
       Math.abs(
