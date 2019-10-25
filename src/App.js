@@ -6,6 +6,17 @@ import { Line } from "react-chartjs-2";
 /* Модель 1 вариант 3 */
 
 function App() {
+  const p = 10e5,
+    a = 0.5,
+    m = 2000,
+    u = 20,
+    cx = 0.03,
+    cy = 0.002,
+    m1 = 0.05,
+    m2 = 0.01,
+    T = 12,
+    g = 9.81;
+
   const generateSteps = (start, end, step) => {
     const arr = [];
     for (let i = start; i < end; i += step) {
@@ -15,35 +26,61 @@ function App() {
   };
 
   const Euler = step => {
-    const c = 7000,
-      u = 20,
-      T = 10,
-      Hte = 10000,
-      g = 9.81,
-      X = [[0], [0], [1200]],
+    const X = {
+        1: [1800],
+        2: [0.8],
+        3: [0],
+        4: [0],
+        5: [0.8]
+      },
       time = [0];
 
+    // c = 7000,
+    //   u = 20,
+    //   T = 10,
+    //   Hte = 10000,
+    //   g = 9.81,
+    //   X = [[0], [0], [1200]],
     const steps = generateSteps(0, T + step, step).length;
 
-    const r = j => 0.1 * Math.exp(-X[0][j] / Hte);
+    // const r = j => 0.1 * Math.exp(-X[0][j] / Hte);
 
     for (let i = 1; i < steps; i++) {
-      X[0].push(0);
+      const t = i * step;
+      console.log(t);
+
+      const x1 = X[1][i - 1],
+        x2 = X[2][i - 1],
+        x3 = X[3][i - 1],
+        x4 = X[4][i - 1],
+        x5 = X[5][i - 1];
+
       X[1].push(0);
       X[2].push(0);
-
-      X[0][i] = X[0][i - 1] + step * X[1][i - 1];
+      X[3].push(0);
+      X[4].push(0);
+      X[5].push(0);
 
       X[1][i] =
-        X[1][i - 1] +
+        x1 + step * (-g * Math.sin(x2) + (p - a * cx * x1 ** 2) / (m - u * t));
+
+      X[2][i] =
+        x2 +
         step *
-          ((c * u) / X[2][i - 1] -
-            g -
-            (r(i - 1) * Math.pow(X[1][i - 1], 2)) / X[2][i - 1]);
+          ((-g + (p * Math.sin(x5 - x2) + a * cy * x1 ** 2) / (m - u * t)) /
+            x1);
 
-      X[2][i] = X[2][i - 1] + step * -u;
+      X[3][i] =
+        x3 +
+        step *
+          ((m1 * a * (x2 - x5) * x1 ** 2 - m2 * a * x1 ** 2 * x3) /
+            (m - u * t));
 
-      time.push(i * step);
+      X[4][i] = x4 + step * (x1 * Math.sin(x2));
+
+      X[5][i] = x5 + step * x3;
+
+      time.push(t);
     }
 
     return [X, time, steps];
@@ -60,49 +97,94 @@ function App() {
 
     delta.push(
       Math.abs(
-        (Y1[0][Y1[0].length - 1] - Y2[0][Y2[0].length - 1]) /
-          Y2[0][Y2[0].length - 1]
+        (Y1[4][Y1[4].length - 1] - Y2[4][Y2[4].length - 1]) /
+          Y2[4][Y2[4].length - 1]
       )
     );
     h.push(h[h.length - 1] / 2);
     steps.push(count);
   }
 
-  const data1 = Ox.map((key, index) => ({ x: key, y: Y1[0][index] }));
-  const data2 = Ox.map((key, index) => ({ x: key, y: Y1[1][index] }));
-  const data3 = Ox.map((key, index) => ({ x: key, y: Y1[2][index] }));
-  const data4 = h.map((key, index) => ({ x: key, y: delta[index] }));
-  const data5 = h.map((key, index) => ({ x: key, y: steps[index] }));
+  const data1 = {
+    xLabel: "time",
+    yLabel: "x1",
+    data: Ox.map((key, index) => ({ x: key, y: Y1[1][index] }))
+  };
+  const data2 = {
+    xLabel: "time",
+    yLabel: "x2",
+    data: Ox.map((key, index) => ({ x: key, y: Y1[2][index] }))
+  };
+  const data3 = {
+    xLabel: "time",
+    yLabel: "x3",
+    data: Ox.map((key, index) => ({ x: key, y: Y1[3][index] }))
+  };
+  const data4 = {
+    xLabel: "time",
+    yLabel: "x4",
+    data: Ox.map((key, index) => ({ x: key, y: Y1[4][index] }))
+  };
+  const data5 = {
+    xLabel: "time",
+    yLabel: "x5",
+    data: Ox.map((key, index) => ({ x: key, y: Y1[5][index] }))
+  };
 
-  const data = [data1, data2, data3, data4, data5];
+  const dataDelta = {
+    xLabel: "h",
+    yLabel: "delta",
+    data: h.map((key, index) => ({ x: key, y: delta[index] }))
+  };
+  const dataSteps = {
+    xLabel: "h",
+    yLabel: "steps",
+    data: h.map((key, index) => ({ x: key, y: steps[index] }))
+  };
+
+  const data = [data1, data2, data3, data4, data5, dataDelta, dataSteps];
   return (
     <>
-      {data.map((item, key) => (
-        <Line
-          key={key}
-          options={{
-            scales: {
-              xAxes: [
-                {
-                  type: "linear",
-                  position: "bottom"
+      <div className="gridContainer">
+        {data.map((item, key) => (
+          <div key={key}>
+            <Line
+              options={{
+                scales: {
+                  xAxes: [
+                    {
+                      type: "linear",
+                      scaleLabel: {
+                        display: true,
+                        labelString: item.xLabel
+                      }
+                    }
+                  ],
+                  yAxes: [
+                    {
+                      scaleLabel: {
+                        display: true,
+                        labelString: item.yLabel
+                      }
+                    }
+                  ]
+                },
+                legend: {
+                  display: false
                 }
-              ]
-            }
-          }}
-          data={{
-            datasets: [
-              {
-                label: `Уравнение ${key + 1}`,
-                backgroundColor: "black",
-                fill: false,
-
-                data: item
-              }
-            ]
-          }}
-        />
-      ))}
+              }}
+              data={{
+                datasets: [
+                  {
+                    data: item.data,
+                    fill: false
+                  }
+                ]
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </>
   );
 }
