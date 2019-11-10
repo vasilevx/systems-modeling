@@ -5,8 +5,8 @@ import { Line } from "react-chartjs-2";
 
 /* Модель 1 вариант 3 */
 
-function App() {
-  const p = 10e5,
+const App = () => {
+  const p = 100000,
     a = 0.5,
     m = 2000,
     u = 20,
@@ -35,19 +35,11 @@ function App() {
       },
       time = [0];
 
-    // c = 7000,
-    //   u = 20,
-    //   T = 10,
-    //   Hte = 10000,
-    //   g = 9.81,
-    //   X = [[0], [0], [1200]],
     const steps = generateSteps(0, T + step, step).length;
-
-    // const r = j => 0.1 * Math.exp(-X[0][j] / Hte);
 
     for (let i = 1; i < steps; i++) {
       const t = i * step;
-      console.log(t);
+      // console.log(t);
 
       const x1 = X[1][i - 1],
         x2 = X[2][i - 1],
@@ -73,7 +65,7 @@ function App() {
       X[3][i] =
         x3 +
         step *
-          ((m1 * a * (x2 - x5) * x1 ** 2 - m2 * a * x1 ** 2 * x3) /
+          ((m1 * a * (x2 - x5) * (x1 ** 2) - m2 * a * (x1 ** 2) * x3) /
             (m - u * t));
 
       X[4][i] = x4 + step * (x1 * Math.sin(x2));
@@ -88,13 +80,14 @@ function App() {
 
   const delta = [100],
     h = [0.1],
-    steps = [generateSteps(0, 13 + h[h.length - 1], h[h.length - 1]).length];
+    steps = [generateSteps(0, T + h[h.length - 1], h[h.length - 1]).length];
 
   let Y1, Ox, count, Y2;
+  console.log(steps);
+
   while (delta[delta.length - 1] > 0.001) {
     [Y1, Ox, count] = Euler(h[h.length - 1]);
     [Y2] = Euler(h[h.length - 1] / 2);
-
     delta.push(
       Math.abs(
         (Y1[4][Y1[4].length - 1] - Y2[4][Y2[4].length - 1]) /
@@ -187,6 +180,6 @@ function App() {
       </div>
     </>
   );
-}
+};
 
 export default App;
