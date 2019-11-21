@@ -247,7 +247,7 @@ const App = () => {
       <input
         type="button"
         onClick={() => setGraphData(calculate(true))}
-        value="Посчитать с точность 1%"
+        value="Посчитать с точностью 1%"
       />
 
       <div className="gridContainer">
