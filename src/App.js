@@ -55,11 +55,11 @@ const App = () => {
     };
 
     let numberOfSteps = 0;
-    for (let i = 0; i < T + step; i += step) {
+    for (let i = 0; i <= T; i += step) {
       numberOfSteps += 1;
     }
 
-    for (let i = 1; i <= numberOfSteps; i++) {
+    for (let i = 1; i < numberOfSteps; i++) {
       const t = i * step;
 
       x1 += step * (-g * Math.sin(x2) + (p - a * cx * x1 ** 2) / (m - u * t));
@@ -191,7 +191,7 @@ const App = () => {
                   <label>
                     <span className="inputLabel">{key}</span>
                     <input
-                      value={value}
+                      defaultValue={value}
                       onChange={e => {
                         setConstants({
                           ...constants,
@@ -216,7 +216,7 @@ const App = () => {
                       x<sub>{key}</sub>
                     </span>
                     <input
-                      value={value}
+                      defaultValue={value}
                       onChange={e => {
                         setInitialXValues({
                           ...initialXValues,
@@ -238,7 +238,7 @@ const App = () => {
           value="Посчитать с заданным шагом"
         />
         <input
-          value={defaultH}
+          defaultValue={defaultH}
           onChange={e => {
             setH(+e.target.value);
           }}
