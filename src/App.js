@@ -1,7 +1,8 @@
 import React from "react";
 import "./App.css";
 import { Switch, Route, Link } from "react-router-dom";
-import Lab1 from "./lab1";
+import Lab1 from "./labs/lab1";
+import Lab2 from "./labs/lab2";
 import Home from "./Home";
 
 /* Модель 1 вариант 3 */
@@ -22,6 +23,9 @@ const App = () => {
         </Route>
         <Route path="/lab1">
           <Lab1 />
+        </Route>
+        <Route path="/lab2">
+          <Lab2 />
         </Route>
       </Switch>
     </div>

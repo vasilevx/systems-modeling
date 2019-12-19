@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./App.css";
+import "../App.css";
 
 import { Line } from "react-chartjs-2";
 
