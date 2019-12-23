@@ -32,7 +32,7 @@ const reverseF = x => Math.atan(x);
 //     return res;
 // };
 
-const generateRandomValues = n => {
+export const generateRandomValues = n => {
     return [...new Array(n)].map(() => {
         return Math.random();
     });
@@ -149,65 +149,66 @@ const Lab3 = () => {
                     }}
                 />
             </label>
-            <Line
-                width={300}
-                options={{
-                    animation: {
-                        duration: 0
-                    },
-                    hover: {
-                        animationDuration: 0
-                    },
-                    responsiveAnimationDuration: 0,
-                    elements: {
-                        line: {
-                            tension: 0
-                        }
-                    },
-                    scales: {
-                        xAxes: [
-                            {
-                                type: 'linear',
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Xi'
-                                }
+            <div style={{ maxWidth: '700px' }}>
+                <Line
+                    options={{
+                        animation: {
+                            duration: 0
+                        },
+                        hover: {
+                            animationDuration: 0
+                        },
+                        responsiveAnimationDuration: 0,
+                        elements: {
+                            line: {
+                                tension: 0
                             }
-                        ],
-                        yAxes: [
-                            {
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'F(x)'
+                        },
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: 'linear',
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Xi'
+                                    }
                                 }
+                            ],
+                            yAxes: [
+                                {
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'F(x)'
+                                    }
+                                }
+                            ]
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }}
+                    data={{
+                        datasets: [
+                            {
+                                data: statChartData,
+                                fill: false,
+                                borderColor: 'blue',
+                                label: 'F*(x)',
+                                pointRadius: 0,
+                                pointHitRadius: 0
+                            },
+                            {
+                                data: FChartData,
+                                fill: false,
+                                borderColor: 'green',
+                                label: 'F(x)',
+                                pointRadius: 0,
+                                pointHitRadius: 0
                             }
                         ]
-                    },
-                    legend: {
-                        display: true
-                    }
-                }}
-                data={{
-                    datasets: [
-                        {
-                            data: statChartData,
-                            fill: false,
-                            borderColor: 'blue',
-                            label: 'F*(x)',
-                            pointRadius: 0,
-                            pointHitRadius: 0
-                        },
-                        {
-                            data: FChartData,
-                            fill: false,
-                            borderColor: 'green',
-                            label: 'F(x)',
-                            pointRadius: 0,
-                            pointHitRadius: 0
-                        }
-                    ]
-                }}
-            />
+                    }}
+                />
+            </div>
 
             <table>
                 <tbody>
