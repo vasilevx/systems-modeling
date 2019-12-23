@@ -8,9 +8,9 @@ import Zoom from 'chartjs-plugin-zoom';
 Критерий согласия Колмогорова
 */
 const analyticExpectedValue = 0.438;
-const analyticVariance = 0.0527;
-const min = 0;
-const max = Math.PI / 4;
+const analyticVariance = 0.053;
+// const min = 0;
+// const max = Math.PI / 4;
 const constLambda = 1.22;
 const constP = 0.1;
 
@@ -26,11 +26,11 @@ const F = x => Math.tan(x);
 const reverseF = x => Math.atan(x);
 
 /* Статистическая функция распределения */
-const statFunction = sortedArr => {
-    const len = sortedArr.length;
-    const res = sortedArr.map((_, index) => (index + 1) / len);
-    return res;
-};
+// const statFunction = sortedArr => {
+//     const len = sortedArr.length;
+//     const res = sortedArr.map((_, index) => (index + 1) / len);
+//     return res;
+// };
 
 const generateRandomValues = n => {
     return [...new Array(n)].map(() => {
@@ -38,22 +38,9 @@ const generateRandomValues = n => {
     });
 };
 
-const calculateMean = arr => {
-    const len = arr.length;
-    const mean = arr.reduce((sum, item) => sum + item, 0) / len;
-    return mean;
-};
-
-const calculateVariance = (arr, mean) => {
-    const len = arr.length;
-
-    const varx = arr.reduce((sum, item) => (sum += (item - mean) ** 2), 0);
-    return varx / (len - 1);
-};
-
 const Lab3 = () => {
     const [u, setUpd] = useState(true);
-    const [arraySize, setArraySize] = useState(100);
+    const [arraySize, setArraySize] = useState(50);
 
     /* Генерируем arraySize случайных чисел */
     const randomNumbers = generateRandomValues(arraySize).sort((a, b) => a - b);
@@ -61,58 +48,92 @@ const Lab3 = () => {
     /* Находим значения обратной функции */
     const reverseValues = randomNumbers.map(reverseF);
 
-    /* Находим значения F(x) */
+    const statValues = [];
+    const Fvalues = [];
+    let deltaP = 0;
+    let min = 1;
+    let max = 0;
+
+    const m = arraySize > 500 ? 30 : Math.floor(arraySize / (15 / 20));
+
     const before = Date.now();
+    reverseValues.forEach((x, index) => {
+        const FValue = F(x);
 
-    const Fvalues = reverseValues.map(item => F(item));
-    // const {Fvalues, statValues, deltaP, meanSum} = reverseValues.reduce((obj, x, index) => {
-    //     const FValue = F(x);
-    //     const statValue = (index + 1) / arraySize;
+        if (FValue < min) {
+            min = FValue;
+        }
 
-    //     const delta = Math.abs(FValue - statValue);
+        if (FValue > max) {
+            max = FValue;
+        }
+        const statValue = (index + 1) / arraySize;
 
-    //     if (delta > obj.deltaP) {
-    //         obj.deltaP = delta;
-    //     }
+        const delta = Math.abs(FValue - statValue);
 
-    //     obj.meanSum += FValue;
+        if (delta > deltaP) {
+            deltaP = delta;
+        }
 
-    //     obj.statValues = [...obj.statValues, statValue]
-    //     obj.Fvalues = [...obj.Fvalues, FValue];
-    //     return obj;
-    // }, {statValues: [], Fvalues: [], deltaP: 0, meanSum: 0});
+        statValues.push(statValue);
+        Fvalues.push(FValue);
+    });
 
- 
-    /* Находим значени F*(x) */
-    const statValues = statFunction(reverseValues);
+    const deltaX = (max - min) / m;
 
-    const deltaP = Fvalues.reduce((max, item, i) => {
-        const statValue = statValues[i];
-        const deltaFFirst = Math.abs(item - statValue);
-        const deltaStatFirst = Math.abs(statValue - item);
-        // console.log(deltaFFirst, deltaStatFirst);
-        const deltaMin =
-            deltaFFirst > deltaStatFirst ? deltaFFirst : deltaStatFirst;
-        max = max > deltaMin ? max : deltaMin;
-        return max;
-    }, 0);
+    const parts = [];
+
+    let i = 0;
+
+    while (i < m) {
+        const minValue = min + deltaX * i;
+        const maxValue = minValue + deltaX;
+        parts[i] = {
+            minValue,
+            maxValue,
+            data: [],
+            size: 0
+        };
+        i++;
+    }
+
+    reverseValues.forEach(val => {
+        parts.forEach(item => {
+            const { minValue, maxValue } = item;
+            if (val >= minValue && val <= maxValue) {
+                item.size += 1;
+                item.data.push(val);
+            }
+        });
+    });
+
+    const mappedParts = parts.map(part => ({
+        V: (part.minValue + part.maxValue) / 2,
+        P: part.size / arraySize
+    }));
+
+    const mean = mappedParts.reduce((sum, item) => sum + item.P * item.V, 0);
+    const variance = mappedParts.reduce(
+        (sum, item) => sum + item.P * (item.V - mean) ** 2,
+        0
+    );
 
     const lambda = deltaP * Math.sqrt(arraySize);
     const isOk = lambda <= constLambda;
-    const mean =calculateMean(Fvalues);
-    const variance = 1;
 
     /* Преобразуем в формат графика */
-    const [FChartData, statChartData] = reverseValues.reduce(
-        (obj, item, i) => {
-            obj[0] = [...obj[0], { x: item, y: Fvalues[i] }];
-            obj[1] = [...obj[1], { x: item, y: statValues[i] }];
-            return obj;
-        },
-        [[], []]
-    );
-   const after = Date.now();
-    console.log(after - before);
+    const FChartData = reverseValues.map((item, i) => ({
+        x: item,
+        y: Fvalues[i]
+    }));
+
+    const statChartData = reverseValues.map((item, i) => ({
+        x: item,
+        y: statValues[i]
+    }));
+
+    const after = Date.now();
+    console.log('Time', after - before);
     return (
         <div>
             <label>
@@ -187,27 +208,35 @@ const Lab3 = () => {
                     ]
                 }}
             />
-            <p>
-                <b style={{ color: isOk ? 'green' : 'red' }}>
-                    {lambda.toFixed(4)}
-                </b>{' '}
-                <b>
-                    {isOk ? '⩽' : '>'} {constLambda}
-                </b>
-                ,{' '}
-                <span>
-                    выборка {!isOk && 'не'} удовлетворяет критерию Колмогорова
-                </span>
-            </p>
+
             <table>
                 <tbody>
+                    <tr>
+                        <th>
+                            Δ<sub>p</sub>
+                        </th>
+                        <td colSpan={2}>{deltaP.toFixed(3)}</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            λ<sub>p</sub>
+                        </th>
+                        <td colSpan={2}>
+                            <b style={{ color: isOk ? 'green' : 'red' }}>
+                                {lambda.toFixed(4)}
+                            </b>
+                            <b>
+                                {isOk ? '⩽' : '>'} {constLambda}
+                            </b>
+                        </td>
+                    </tr>
                     <tr>
                         <th colSpan={3}>Параметры распределения</th>
                     </tr>
                     <tr>
                         <th></th>
                         <th>Теоретический</th>
-                        <th>Эмперический</th>
+                        <th>Эмпирический</th>
                     </tr>
 
                     <tr>
