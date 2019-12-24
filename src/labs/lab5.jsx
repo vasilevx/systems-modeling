@@ -66,7 +66,7 @@ const Kf = Math.sqrt((2 * D) / alpha / S0);
 const Tf = 1 / alpha;
 
 /*********** */
-const getNormalSample = size => {
+export const getNormalSample = size => {
     const normalSample = [];
     const randomValues = [];
     while (normalSample.length < size) {
@@ -88,7 +88,7 @@ const getNormalSample = size => {
     return [normalSample.slice(0, size), randomValues.slice(0, size)];
 };
 
-const towardUniform = sample => {
+export const towardUniform = sample => {
     let rightFactor = Array(sample.length).fill(0);
 
     for (let i of [...Array(30).keys()]) {
