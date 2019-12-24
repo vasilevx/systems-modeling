@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import '../App.css';
 import { Line } from 'react-chartjs-2';
 import Zoom from 'chartjs-plugin-zoom';
@@ -134,20 +134,23 @@ const Lab3 = () => {
 
     const after = Date.now();
     console.log('Time', after - before);
+
+    const inputRef = useRef();
     return (
         <div>
             <label>
                 <div>Размер выборки</div>
-                <input
-                    type="number"
-                    defaultValue={arraySize}
-                    onKeyPress={e => {
-                        if (e.key === 'Enter') {
-                            setArraySize(+e.target.value);
-                            setUpd(!u);
-                        }
+                <input ref={inputRef} type="number" defaultValue={arraySize} />
+                <button
+                    onClick={e => {
+                        e.preventDefault();
+                        setArraySize(+inputRef.current.value);
+
+                        setUpd(!u);
                     }}
-                />
+                >
+                    Сгенерировать
+                </button>
             </label>
             <div style={{ maxWidth: '700px' }}>
                 <Line
