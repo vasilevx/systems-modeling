@@ -28,12 +28,12 @@ const App = () => {
                 <Route exact path="/">
                     <Home />
                 </Route>
-                <Route path="/lab1">
+                {/* <Route path="/lab1">
                     <Lab1 />
                 </Route>
                 <Route path="/lab2">
                     <Lab2 />
-                </Route>
+                </Route> */}
                 <Route path="/lab3">
                     <Lab3 />
                 </Route>
