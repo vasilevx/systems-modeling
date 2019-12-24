@@ -68,10 +68,8 @@ const Tf = 1 / alpha;
 /*********** */
 export const getNormalSample = size => {
     const normalSample = [];
-    const randomValues = [];
     while (normalSample.length < size) {
         const uniSample = generateRandomValues(2);
-        randomValues.push(...uniSample);
         const [v1, v2] = uniSample.map(item => 2 * item - 1);
         const s = v1 ** 2 + v2 ** 2;
 
@@ -85,7 +83,7 @@ export const getNormalSample = size => {
         normalSample.push(r * v2);
     }
 
-    return [normalSample.slice(0, size), randomValues.slice(0, size)];
+    return normalSample.slice(0, size);
 };
 
 export const towardUniform = sample => {
@@ -111,7 +109,7 @@ export const towardUniform = sample => {
 
 const Lab5 = () => {
     const [u, setU] = useState(true);
-    const [whiteNoise, whiteNoiseX] = getNormalSample(n);
+    const whiteNoise = getNormalSample(n);
 
     /* Преобразование равномерно распределения белого шума в стандартизированный закон*/
     const whiteNoiseData = whiteNoise
