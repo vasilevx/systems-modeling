@@ -93,11 +93,10 @@ const Lab7 = () => {
                 <tbody>
                     <tr>
                         <td></td>
-                        <td>За 100 секунд</td>
+                        <td>За 100 с.</td>
                         <td>
                             Спустя{' '}
-                            {(secondAttempt.t - firstAttempt.t).toFixed(0)}{' '}
-                            секунд
+                            {(secondAttempt.t - firstAttempt.t).toFixed(0)} с.
                         </td>
                     </tr>
                     <tr>
