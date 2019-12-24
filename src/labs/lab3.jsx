@@ -191,6 +191,8 @@ const Lab3 = () => {
                         datasets: [
                             {
                                 data: statChartData,
+                                steppedLine: true,
+
                                 fill: false,
                                 borderColor: 'blue',
                                 label: 'F*(x)',
@@ -199,6 +201,7 @@ const Lab3 = () => {
                             },
                             {
                                 data: FChartData,
+                                steppedLine: true,
                                 fill: false,
                                 borderColor: 'green',
                                 label: 'F(x)',

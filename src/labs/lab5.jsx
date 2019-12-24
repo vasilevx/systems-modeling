@@ -134,6 +134,8 @@ const Lab5 = () => {
                         datasets: [
                             {
                                 data: theorData1,
+                                steppedLine: true,
+
                                 fill: false,
                                 borderColor: 'blue',
                                 label: 'Теор. K(t)',
@@ -142,6 +144,8 @@ const Lab5 = () => {
                             },
                             {
                                 data: empirData1,
+                                steppedLine: true,
+
                                 fill: false,
                                 borderColor: 'green',
                                 label: 'Эмпирическая K*(t)',
