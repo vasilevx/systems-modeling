@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { generateRandomValues } from './lab3';
 import { Line } from 'react-chartjs-2';
+const F = x => Math.tan(x);
+
 const reverseF = x => Math.atan(x);
 
 const mean = arr => {
@@ -60,6 +62,7 @@ const alpha = 2;
 const h = 0.002;
 const n = 10000;
 const nsteps = 3 / alpha / h;
+const constLambda = 1.22;
 
 const S0 = h;
 const Kf = Math.sqrt((2 * D) / alpha / S0);
@@ -137,6 +140,7 @@ const Lab5 = () => {
         .map((_, i) => D * Math.exp(-alpha * i * h));
 
     const corrEmpirical1 = [];
+
     for (let j of [...Array(nsteps).keys()]) {
         let sum = 0;
         for (let i of [...Array(n - j).keys()]) {
@@ -176,6 +180,7 @@ const Lab5 = () => {
     }));
 
     /* Обеспечение требуемого закона распределения */
+
     const X3 = [];
     for (let i of X2) {
         X3.push(reverseF(i));
@@ -194,6 +199,21 @@ const Lab5 = () => {
         corrEmpirical3.push(sum);
     }
 
+    let deltaP = 0;
+    corrEmpirical3
+        .sort((a, b) => a - b)
+        .forEach((item, index) => {
+            const FValue = F(item);
+            const statValue = (index + 1) / n;
+
+            const delta = Math.abs(FValue - statValue);
+            if (delta > deltaP) {
+                deltaP = delta;
+            }
+        });
+
+    const lambda = deltaP * Math.sqrt(nsteps);
+    const isOk = lambda <= constLambda;
     const empirData3 = corrEmpirical3.map((item, index) => ({
         x: index,
         y: item
@@ -202,11 +222,11 @@ const Lab5 = () => {
     return (
         <div>
             <button onClick={() => setU(!u)}>Сгенерировать</button>
-
             <p>
                 Преобразование равномерного закона распределения белого шума в
                 стандартизированный нормальный закон распределения
             </p>
+
             <div style={{ maxWidth: '700px' }}>
                 <Line
                     options={lineOptions}
@@ -273,7 +293,13 @@ const Lab5 = () => {
                         ]
                     }}
                 />
-                <p>Обеспечение иребуемого закона распределения</p>
+                <p>Обеспечение требуемого закона распределения</p>λ ={' '}
+                <b style={{ color: isOk ? 'green' : 'red' }}>
+                    {lambda.toFixed(4)}
+                </b>{' '}
+                <b>
+                    {isOk ? '⩽' : '>'} {constLambda}
+                </b>, {!isOk && 'не '} соответствует критерию Колмогорова
                 <Line
                     options={lineOptions}
                     data={{
